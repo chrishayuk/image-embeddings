@@ -2,7 +2,6 @@
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
 from tqdm import tqdm
-
 from hash_utils import hash_to_uuid
 
 # Constants
