@@ -1,9 +1,9 @@
 # qdrant_utils.py
-import hashlib
-import uuid
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
 from tqdm import tqdm
+
+from hash_utils import hash_to_uuid
 
 # Constants
 COLLECTION_NAME = "images"
@@ -37,12 +37,6 @@ def create_and_overwrite_collection(vector_size):
         vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE)
     )
 
-def hash_to_uuid(embedding):
-    """Generate a UUID based on an SHA-256 hash of the embedding."""
-    embedding_str = ','.join(map(str, embedding))  # Convert to a comma-separated string
-    hash_value = hashlib.sha256(embedding_str.encode()).hexdigest()
-    return str(uuid.UUID(hash_value[:32]))  # Use first 32 characters to create a UUID
-
 def upload_embeddings(embeddings, image_urls):
     """Upload embeddings to the Qdrant collection with a progress bar, UUID-based IDs, and image URLs."""
     client = get_qdrant_client()
@@ -56,3 +50,21 @@ def upload_embeddings(embeddings, image_urls):
     # Use tqdm to show progress
     for point in tqdm(points, desc="Uploading embeddings to Qdrant"):
         client.upsert(COLLECTION_NAME, points=[point])
+
+def find_similar_embeddings(query_embedding, top_k, with_payload = True):
+    """Find similar embeddings to the query embedding"""
+
+    # Initialize Qdrant client
+    client = get_qdrant_client()
+    
+    # Search for similar embeddings
+    search_results = client.search(
+        collection_name=COLLECTION_NAME,
+        query_vector=query_embedding,
+        limit=top_k,
+        # Retrieve stored metadata (URLs)
+        with_payload=with_payload  
+    )
+
+    # return the results
+    return search_results
