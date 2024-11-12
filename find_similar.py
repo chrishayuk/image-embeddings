@@ -1,18 +1,7 @@
 import argparse
-from tabulate import tabulate
-import pyshorteners
 from image_embeddings_extractor import load_embeddings_model, extract_embeddings
 from qdrant_utils import find_similar_embeddings
-
-def shorten_url(url):
-    """Shorten a URL using pyshorteners."""
-    shortener = pyshorteners.Shortener()
-    try:
-        # shorten url
-        return shortener.tinyurl.short(url)
-    except Exception:
-        # Return original URL if shortening fails
-        return url  
+from display_utils import display_similarity_results
 
 def find_similar_images(model, image_url, top_k=5):
     """Find similar images to the given image URL."""
@@ -22,17 +11,8 @@ def find_similar_images(model, image_url, top_k=5):
     # Search for similar embeddings
     search_results = find_similar_embeddings(query_embedding, top_k)
     
-    # Prepare data with shortened URLs
-    table_data = []
-    for result in search_results:
-        similarity_score = f"{result.score:.4f}"  # Limit similarity score to 4 decimal places
-        matched_url = result.payload.get("url", "No URL found")
-        shortened_url = shorten_url(matched_url)
-        table_data.append([shortened_url, similarity_score])
-    
-    # Display results in a tabulated format
-    print(f"Top {top_k} similar images to '{image_url}':")
-    print(tabulate(table_data, headers=["URL", "Similarity Score"], tablefmt="fancy_grid"))
+    # Display results
+    display_similarity_results(search_results, image_url, top_k)
 
 if __name__ == "__main__":
     # Setup the parser
