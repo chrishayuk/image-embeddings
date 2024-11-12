@@ -1,4 +1,5 @@
 # create_index.py
+import argparse
 import json
 from image_embeddings_extractor import load_embeddings_model, extract_embeddings
 from qdrant_utils import create_and_overwrite_collection, upload_embeddings
@@ -16,23 +17,25 @@ def process_and_upload_images(model, image_urls):
     # Upload the embeddings to Qdrant with progress shown
     upload_embeddings(embeddings, image_urls)
 
-def main(image_urls_file_path):
+if __name__ == "__main__":
+    # Setup the parser
+    parser = argparse.ArgumentParser(description="Add image embeddings to Qdrant.")
+
+    # Arguments
+    parser.add_argument("--image_json", type=str, default='image_urls.json', help="Path to the JSON file containing image URLs")
+    parser.add_argument("--vector_size", type=int, default=768, help="Vector size of the image embeddings")
+
+    # Parse arguments
+    args = parser.parse_args()
+
     # Load image URLs
-    image_urls = load_image_urls(image_urls_file_path)
+    image_urls = load_image_urls(args.image_json)
     
     # Initialize the model
     model = load_embeddings_model()
 
-    # Get vector size from one embedding
-    vector_size = len(extract_embeddings(model, [image_urls[0]])[0])  
+    # Create the collection and overwrite if it exists
+    create_and_overwrite_collection(args.vector_size)
 
-    # Create the collection and overwrite if exists
-    create_and_overwrite_collection(vector_size)
-    
     # Process and upload images
     process_and_upload_images(model, image_urls)
-
-if __name__ == "__main__":
-    # Path to the JSON file with image URLs
-    image_urls_file_path = 'image_urls.json'
-    main(image_urls_file_path)
