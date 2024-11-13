@@ -1,7 +1,8 @@
 # add_image.py
 import argparse
 from image_embeddings_extractor import load_embeddings_model, extract_embeddings
-from qdrant_utils import create_collection_if_not_exists, upload_embeddings
+#from qdrant_utils import create_collection_if_not_exists, upload_embeddings
+from annoy_utils import create_collection_if_not_exists, upload_embeddings
 
 def add_image(model, image_url):
     """Extract embedding for a single image and upload it to Qdrant."""

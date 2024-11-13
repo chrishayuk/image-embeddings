@@ -2,7 +2,8 @@
 import argparse
 import json
 from image_embeddings_extractor import load_embeddings_model, extract_embeddings
-from qdrant_utils import create_and_overwrite_collection, upload_embeddings
+#from qdrant_utils import create_and_overwrite_collection, upload_embeddings
+from annoy_utils import create_and_overwrite_collection, upload_embeddings
 
 def load_image_urls(file_path):
     """Load image URLs from a JSON file."""

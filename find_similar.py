@@ -1,6 +1,7 @@
 import argparse
 from image_embeddings_extractor import load_embeddings_model, extract_embeddings
-from qdrant_utils import find_similar_embeddings
+#from qdrant_utils import find_similar_embeddings
+from annoy_utils import find_similar_embeddings
 from display_utils import display_similarity_results
 
 def find_similar_images(model, image_url, top_k=5):

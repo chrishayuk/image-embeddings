@@ -2,3 +2,4 @@ __pycache__
 archive
 qdrant_storage
 images
+*.ann
