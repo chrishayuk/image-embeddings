@@ -1,39 +1,40 @@
-# add_image.py
 import argparse
+import vector_utils
 from image_embeddings_extractor import load_embeddings_model, extract_embeddings
-#from qdrant_utils import create_collection_if_not_exists, upload_embeddings
-from annoy_utils import create_collection_if_not_exists, upload_embeddings
+
 
 def add_image(model, image_url):
-    """Extract embedding for a single image and upload it to Qdrant."""
+    """Extract embedding for a single image and upload it to the selected backend."""
     # Extract embedding for the single image URL
     embeddings = extract_embeddings(model, [image_url])
     
-    # Upload the single embedding to Qdrant
-    upload_embeddings(embeddings, [image_url])
+    # Upload the single embedding to the backend
+    vector_utils.backend.upload_embeddings(embeddings, [image_url])
+
 
 if __name__ == "__main__":
-    # setup the parser
-    parser = argparse.ArgumentParser(description="Add an image embedding to Qdrant.")
+    # Setup the parser
+    parser = argparse.ArgumentParser(description="Add an image embedding to the vector database.")
 
-    # arguements
-    parser.add_argument("--image_url", type=str, help="URL of the image to add to Qdrant")
+    # Arguments
+    parser.add_argument("--image_url", type=str, required=True, help="URL of the image to add")
     parser.add_argument("--vector_size", type=int, default=768, help="Vector size of the image embedding")
+    parser.add_argument("--backend", type=str, default="annoy", choices=["annoy", "qdrant"], help="Vector backend to use")
 
-    # parse
+    # Parse arguments
     args = parser.parse_args()
+
+    # Dynamically load the utility functions
+    vector_utils.load_vector_utils(args.backend)
 
     # Load the model
     model = load_embeddings_model()
 
-    # Ensure collection exists (assuming embedding size can be derived from the embedding)
-    vector_size = args.vector_size
-
-    # create the collection if it doesn't exist
-    create_collection_if_not_exists(vector_size)
+    # Ensure collection exists
+    vector_utils.backend.create_collection_if_not_exists(args.vector_size)
 
     # Process and upload the image
     add_image(model, args.image_url)
 
-    # show the output
-    print(f"Embedding for image '{args.image_url}' has been uploaded to Qdrant.")
+    # Show the output
+    print(f"Embedding for image '{args.image_url}' has been uploaded to the {args.backend} backend.")

@@ -2,6 +2,7 @@
 import pyshorteners
 from tabulate import tabulate
 
+
 def shorten_url(url):
     """Shorten a URL using pyshorteners."""
     shortener = pyshorteners.Shortener()
